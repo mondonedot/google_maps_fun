@@ -19,30 +19,17 @@ function city(name, lat, lng){
 }
 
 //List of City objects that can be chosen for the game.
-var city_list = []
-var city_list = [
+var temp = '[{"name": "Chicago, IL", "coord": {"lat": 41.8781136, "lng": -87.6297982}}, {"name": "New York, NY", "coord": {"lat": 40.7127837, "lng": -74.0059413}}, {"name": "San Francisco, CA", "coord": {"lat": 37.7749295, "lng": -122.4194155}}, {"name": "Champaign, IL", "coord": {"lat": 40.1164204, "lng": -88.2433829}}, {"name": "Miami, FL", "coord": {"lat": 25.7616798, "lng": -80.1917902}}, {"name": "Austin, TX", "coord": {"lat": 30.267153, "lng": -97.7430608}}, {"name": "Los Angeles, CA", "coord": {"lat": 34.0522342, "lng": -118.2436849}}, {"name": "Houston, TX", "coord": {"lat": 29.7604267, "lng": -95.3698028}}, {"name": "Philadelphia, PA", "coord": {"lat": 39.9525839, "lng": -75.1652215}}, {"name": "Detroit, MI", "coord": {"lat": 42.331427, "lng": -83.0457538}}, {"name": "Orlando, FL", "coord": {"lat": 28.5383355, "lng": -81.3792365}}, {"name": "St. Louis, MO", "coord": {"lat": 38.6270025, "lng": -90.19940419999999}}, {"name": "Helena, MT", "coord": {"lat": 46.5883707, "lng": -112.0245054}}, {"name": "Boston, MA", "coord": {"lat": 42.3600825, "lng": -71.0588801}}, {"name": "Phoenix, AZ", "coord": {"lat": 33.4483771, "lng": -112.0740373}}, {"name": "New Orleans, LA", "coord": {"lat": 29.95106579999999, "lng": -90.0715323}}, {"name": "Minneapolis, MN", "coord": {"lat": 44.977753, "lng": -93.2650108}}, {"name": "Omaha NE", "coord": {"lat": 41.2523634, "lng": -95.99798829999999}}, {"name": "Salt Lake City, UT", "coord": {"lat": 40.7607793, "lng": -111.8910474}}, {"name": "Washington D.C.", "coord": {"lat": 38.9071923, "lng": -77.0368707}}, {"name": "Atlanta, GA", "coord": {"lat": 33.7489954, "lng": -84.3879824}}, {"name": "Seattle, WA", "coord": {"lat": 47.6062095, "lng": -122.3320708}}]';
+var city_list = JSON.parse(temp);
+
+
+
+/*var city_list = [
 	{name:"Chicago", coord:{lat:41.8518078, lng:-87.8420512}},
 	{name:"Champaign", coord:{lat:40.11461, lng:-88.3471495}},
 	{name:"New York", coord:{lat:40.705311, lng:-74.2581946}},
 	{name:"San Francisco", coord:{lat:37.7576793, lng:-122.5076404}},
-];
-
-/*var cityNames = [
-	"Chicago, IL",
-	"New York, NY",
-	"San Francisco, CA",
-	"Champaign, IL",	
-	];*/
-
-/*
-* Generates the coordinates of the cities in the cityNames array.
-*/
-function generateCoords() {
-	var i;
-	for(i = 0; i < cityNames.length; i++){
-
-	}
-}
+];*/
 
 
 /*
@@ -157,6 +144,9 @@ function submitRoute() {
 				googleDist += retRoute.legs[i].distance.value;
 				
 				//Append the list of cities to display
+				if(i > 0){
+					$('#google-route-list').append("<li style=\"font-size:12px\">" + (i) + ")  " + retRoute.legs[i].start_address + "<li>");
+				}
 			}
 			googleDist = Math.round(googleDist/1609.344);
 			$('#google-dist').html(googleDist + " miles");	
@@ -187,7 +177,7 @@ function addToCurrRoute(city) {
 	route.push(city);
 
 	//Add the city to the displayed list
-	$('#route-list').append("<li>" + (route.length-1) + ")  " + city.name + "</li>");
+	$('#route-list').append("<li style=\"font-size: 12px\">" + (route.length-1) + ")  " + city.name + "</li>");
 
 	//If all cities have been clicked then ungrey the submit button
 	if(routeLength == gameList.length) {
@@ -234,12 +224,18 @@ function newGame(num_cities){
 
 	markers = [];
 	clearRoute();
+
+	//Clear all saved html and show/hide necessary items.
 	$('#user-dist').html("");
 	$('#google-dist').html("");
 	$('#google-route-list').html("<h4>Google's Route</h4><h4>Start City: "+ gameList[0].name +"</h4>");
 	$('#score').html();
 	$('#score').hide();
 	$('#google-info').hide();
+	$('#clear-route-btn').show();
+	$('#submit-route-btn').show();
+	$('#directions').hide();
+
 
 	//Plot the cities on the map
 	markers = [];
@@ -297,8 +293,8 @@ function bind_btns(){
 		$('#start-game-btn').click(function(){
 
 			var input = $('#city-num-input').val();
-			if(isNaN(input) || input > city_list.length || input < 3){
-				alert("Please enter a number greater than 2 and less than " + city_list.length);
+			if(isNaN(input) || input > city_list.length || input < 3 || input > 8){
+				alert("Please enter a number greater than 2 and less than 9");
 			} else {
 				$('.start-game').hide();
 				$('.ingame').show();
