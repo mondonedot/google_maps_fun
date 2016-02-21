@@ -30,13 +30,26 @@
 					<input id="city-num-input" class="start-game form-control">
 					<button id="start-game-btn" class="start-game btn btn-success" type="button">Start game!</button>
 
-					<div id="game-info" class="ingame well">
-						<ul id="route-list"><h3>Route List</h3>
+					<div id="game-info" class="ingame">
+						<div id="score" class="well">
 
-						</ul>
-						<button id="clear-route-btn" class="btn btn-success" type="button">Clear Route</button>
+						</div>
 
-						<button id="submit-route-btn" class="btn btn-success" type="button">Submit Route</button>
+						<div class="well" style="padding:0; margin-bottom: 1px">
+							<ul id="route-list"><h3>Route List</h3>
+
+							</ul>
+							<button id="clear-route-btn" class="btn btn-success" type="button">Clear Route</button>
+
+							<button id="submit-route-btn" class="btn btn-success" type="button">Submit Route</button>
+							<h3 id="user-dist"></h3>
+						</div>
+						<div id="google-info" class="well" style="padding:0">
+							<ul id="google-route-list"><h4>Google's Route</h4>
+
+							</ul>
+							<h3 id="google-dist"></h3>
+						</div>
 					</div>
 
 				</div>

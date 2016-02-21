@@ -79,6 +79,11 @@ ul {
 	border-radius: 1px;
 }
 
+#score {
+	padding: 3px;
+	margin: 0;
+}
+
 #game-info {
 	margin-top: 10px;
 }
@@ -87,6 +92,12 @@ ul {
 	padding: 0;
 	text-align: center;
 }
+
+#google-route-list {
+	padding: 0;
+	text-align: center;
+}
+
 
 #clear-route-btn {
 	background-color: #e60000;

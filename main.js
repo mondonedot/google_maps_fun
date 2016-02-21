@@ -19,12 +19,31 @@ function city(name, lat, lng){
 }
 
 //List of City objects that can be chosen for the game.
+var city_list = []
 var city_list = [
 	{name:"Chicago", coord:{lat:41.8518078, lng:-87.8420512}},
 	{name:"Champaign", coord:{lat:40.11461, lng:-88.3471495}},
 	{name:"New York", coord:{lat:40.705311, lng:-74.2581946}},
 	{name:"San Francisco", coord:{lat:37.7576793, lng:-122.5076404}},
 ];
+
+/*var cityNames = [
+	"Chicago, IL",
+	"New York, NY",
+	"San Francisco, CA",
+	"Champaign, IL",	
+	];*/
+
+/*
+* Generates the coordinates of the cities in the cityNames array.
+*/
+function generateCoords() {
+	var i;
+	for(i = 0; i < cityNames.length; i++){
+
+	}
+}
+
 
 /*
 * Function that is called when the page is loaded that loads in the google map. 
@@ -63,8 +82,93 @@ function generateCities(num_cities){
 /*
 * Submits the user's attempt and calculates the difference from google map's attempt.
 * Compares the user's route with the answer and plots the answer on the map.
+* The results are processed in the processResults function that is called by the api.
 */
 function submitRoute() {
+
+	//Remove all the icons of the markers
+	var i;
+	for(i = 0; i < markers.length; i++){
+		markers[i].setMap(null);
+	}
+
+	//Hide the submit and clear buttons
+	$('#clear-route-btn').hide();
+	$('#submit-route-btn').hide();
+	
+	//Show google info section
+	$('#google-info').show();
+
+	var startPoint = new google.maps.LatLng(route[0].coord.lat, route[0].coord.lng);
+	//Create the destination array of LatLng google values
+	var destinations = [];
+	var i;
+	for(i = 1; i < route.length; i++){
+		destinations.push({
+			location: new google.maps.LatLng(route[i].coord.lat, route[i].coord.lng),
+			stopover: true,
+		});	
+	}
+
+	var directionsService = new google.maps.DirectionsService;
+	var directionsDisplay = new google.maps.DirectionsRenderer;
+	directionsDisplay.setMap(map);
+
+	var googleDist = 0;
+	var userDist = 0;
+
+	//Get the directions info about the user's route.
+	directionsService.route({
+		origin: startPoint,
+		destination: startPoint,
+		waypoints: destinations,
+		optimizeWaypoints: false,
+		travelMode: google.maps.TravelMode.DRIVING
+	}, function(response, status){
+		if (status === google.maps.DirectionsStatus.OK) {
+			var retRoute = response.routes[0];
+
+			for(i = 0; i < retRoute.legs.length; i++){
+				userDist += retRoute.legs[i].distance.value;
+			}
+			userDist = Math.round(userDist/1609.344);
+			$('#user-dist').html(userDist + " miles");
+
+		} else {
+			alert('Directions request failed due to ' + status);
+		}
+	});
+
+	//Get the directions info about google's route.
+	directionsService.route({
+		origin: startPoint,
+		destination: startPoint,
+		waypoints: destinations,
+		optimizeWaypoints: true,
+		travelMode: google.maps.TravelMode.DRIVING
+	}, function(response, status){
+		if (status === google.maps.DirectionsStatus.OK) {
+			var retRoute = response.routes[0];
+
+			//Display route on the map
+			directionsDisplay.setDirections(response);
+
+			for(i = 0; i < retRoute.legs.length; i++){
+				googleDist += retRoute.legs[i].distance.value;
+				
+				//Append the list of cities to display
+			}
+			googleDist = Math.round(googleDist/1609.344);
+			$('#google-dist').html(googleDist + " miles");	
+
+		} else {
+			alert('Directions request failed due to ' + status);
+		}
+	});
+
+	score = Math.max(2500 - (4*(userDist-googleDist)), 0);
+	$('#score').html("<h3>You scored " + score + " points!</h3>");
+	//$('#score').show();
 
 }
 
@@ -109,8 +213,7 @@ function clearRoute() {
 	}
 
 	//Clear the html on the page.
-	console.log(route);
-	$('#route-list').html("<h3>Route List</h3><br><h4>Start City: "+ gameList[0].name +"</h4>");
+	$('#route-list').html("<h3>Your Route</h3><h4>Start City: "+ gameList[0].name +"</h4>");
 
 	//Disable the submit route button initially.
 	$('#submit-route-btn').prop('disabled', true);
@@ -131,6 +234,12 @@ function newGame(num_cities){
 
 	markers = [];
 	clearRoute();
+	$('#user-dist').html("");
+	$('#google-dist').html("");
+	$('#google-route-list').html("<h4>Google's Route</h4><h4>Start City: "+ gameList[0].name +"</h4>");
+	$('#score').html();
+	$('#score').hide();
+	$('#google-info').hide();
 
 	//Plot the cities on the map
 	markers = [];
@@ -167,8 +276,7 @@ function newGame(num_cities){
 	}
 
 	google.maps.event.trigger(markers[0], 'click');
-	console.log(gameList[0]);
-	$('#route-list').html("<h3>Route List</h3><h5>Start City: "+route[0].name +"</h5>");
+	$('#route-list').html("<h3>Your Route</h3><h5>Start City: "+route[0].name +"</h5>");
 
 }
 
@@ -178,6 +286,8 @@ function newGame(num_cities){
 function bind_btns(){
 	$('.start-game').hide();
 	$('.ingame').hide();
+	$('#google-info').hide();
+	$('#score').hide();
 
 	//Bind the start game button
 	$('#new-game-btn').click(function(){
