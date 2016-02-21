@@ -12,8 +12,14 @@ body {
 	height: 100%;
 }
 
+.game-btns {
+	padding-top: 10px;
+}
+
 .sidebar {
 	height: 100%;
+	margin: 0 auto;
+	text-align: center;
 }
 
 #map {
