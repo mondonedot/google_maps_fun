@@ -1,13 +1,13 @@
 var map;
 
 //Global variables that need to be kept while a game is running
-var score = 0;
 var gameList = [];
 var markers = [];
 
 //Keeps track of the current route the user has clicked on
 var routeLength = 0;
 var route = [];
+var printed = 0;
 
 /*
 * City object that holds the city name and its latitude and longitude.
@@ -140,14 +140,16 @@ function submitRoute() {
 			//Display route on the map
 			directionsDisplay.setDirections(response);
 
+			console.log("test");
 			for(i = 0; i < retRoute.legs.length; i++){
 				googleDist += retRoute.legs[i].distance.value;
 				
 				//Append the list of cities to display
-				if(i > 0){
+				if(i > 0 && !printed){
 					$('#google-route-list').append("<li style=\"font-size:12px\">" + (i) + ")  " + retRoute.legs[i].start_address + "<li>");
 				}
 			}
+			printed = 1;
 			googleDist = Math.round(googleDist/1609.344);
 			$('#google-dist').html(googleDist + " miles");	
 
@@ -222,13 +224,16 @@ function newGame(num_cities){
 	//Create the list of cities for the game
 	gameList = generateCities(num_cities);
 
+	printed = 0;
 	markers = [];
 	clearRoute();
 
 	//Clear all saved html and show/hide necessary items.
 	$('#user-dist').html("");
 	$('#google-dist').html("");
+	$('#google-route-list').html("");
 	$('#google-route-list').html("<h4>Google's Route</h4><h4>Start City: "+ gameList[0].name +"</h4>");
+
 	$('#score').html();
 	$('#score').hide();
 	$('#google-info').hide();
