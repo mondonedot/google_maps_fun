@@ -2,7 +2,7 @@ var map;
 
 //Global variables that need to be kept while a game is running
 var score = 0;
-var game_list = [];
+var gameList = [];
 var markers = [];
 
 //Keeps track of the current route the user has clicked on
@@ -22,7 +22,7 @@ function city(name, lat, lng){
 var city_list = [
 	{name:"Chicago", coord:{lat:41.8518078, lng:-87.8420512}},
 	{name:"Champaign", coord:{lat:40.11461, lng:-88.3471495}},
-	{name:"New_York", coord:{lat:40.705311, lng:-74.2581946}},
+	{name:"New York", coord:{lat:40.705311, lng:-74.2581946}},
 	{name:"San Francisco", coord:{lat:37.7576793, lng:-122.5076404}},
 ];
 
@@ -60,6 +60,63 @@ function generateCities(num_cities){
 	return city_list_copy.slice(0, num_cities);
 }
 
+/*
+* Submits the user's attempt and calculates the difference from google map's attempt.
+* Compares the user's route with the answer and plots the answer on the map.
+*/
+function submitRoute() {
+
+}
+
+/*
+* Adds the city that was clicked on to the route list if it is not already in it.
+*/
+function addToCurrRoute(city) {
+	//First check if the city is not already on the list.
+	var i;
+	for(i = 0; i < route.length; i++ ) {
+		if(city.name == route[i].name) {
+			return;
+		}
+	}
+	routeLength++;
+	route.push(city);
+
+	//Add the city to the displayed list
+	$('#route-list').append("<li>" + (route.length-1) + ")  " + city.name + "</li>");
+
+	//If all cities have been clicked then ungrey the submit button
+	if(routeLength == gameList.length) {
+		$('#submit-route-btn').prop('disabled', false);
+		$('#submit-route-btn').css('background-color', '#ff9933');
+
+		//Bind submit route button
+		$('#submit-route-btn').click(function(){
+			submitRoute();
+		});
+	}
+}
+
+/*
+* Clears the route list and resets the icons.
+*/
+function clearRoute() {
+	route = gameList.slice(0,1);
+	routeLength = 1;
+	var i;
+	for(i = 1; i < markers.length; i++){
+		markers[i].setIcon("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+	}
+
+	//Clear the html on the page.
+	console.log(route);
+	$('#route-list').html("<h3>Route List</h3><br><h4>Start City: "+ gameList[0].name +"</h4>");
+
+	//Disable the submit route button initially.
+	$('#submit-route-btn').prop('disabled', true);
+	$('#submit-route-btn').css('background-color', 'grey')
+}
+
 /**
 * Generates a new game based upon the number of cities requested.
 */
@@ -70,32 +127,49 @@ function newGame(num_cities){
 	});
 
 	//Create the list of cities for the game
-	game_list = generateCities(num_cities);
+	gameList = generateCities(num_cities);
+
+	markers = [];
+	clearRoute();
 
 	//Plot the cities on the map
 	markers = [];
 	var i;
 	for(i = 0; i < num_cities; i++){
 		var marker = new google.maps.Marker({
-			position: game_list[i].coord,
+			position: gameList[i].coord,
 			map: map,
-			//label: game_list[i].name,
+			icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+			//label: gameList[i].name,
 			labelClass: "labels",
-			title: game_list[i].name,
+			title: gameList[i].name,
 		});
 
-		//Setup the popup for the city name
+		//Setup the popup for the city name when you hover your mouse over.
 		var infowindow = new google.maps.InfoWindow();
 
-		marker.addListener('click', function() {
+		marker.addListener('mouseover', function() {
 			infowindow.setContent(this.title);
 			infowindow.open(map, this);
+		});
+
+		marker.addListener('mouseout', function() {
+			infowindow.close(map, this);
+		});
+
+		//Bind each icon that when clicked it will be added to the route.
+		marker.addListener('click', function() {
+			addToCurrRoute({name:this.title, coord:{lat:this.getPosition().lat(), lng:this.getPosition().lng()}});
+			this.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png')
 		});
 
 		markers.push(marker);
 	}
 
-	//Set the starting point
+	google.maps.event.trigger(markers[0], 'click');
+	console.log(gameList[0]);
+	$('#route-list').html("<h3>Route List</h3><h5>Start City: "+route[0].name +"</h5>");
+
 }
 
 /*
@@ -103,6 +177,7 @@ function newGame(num_cities){
 */
 function bind_btns(){
 	$('.start-game').hide();
+	$('.ingame').hide();
 
 	//Bind the start game button
 	$('#new-game-btn').click(function(){
@@ -112,19 +187,24 @@ function bind_btns(){
 		$('#start-game-btn').click(function(){
 
 			var input = $('#city-num-input').val();
-			if(isNaN(input) || input > city_list.length){
-				alert("Please enter a number less than " + city_list.length);
+			if(isNaN(input) || input > city_list.length || input < 3){
+				alert("Please enter a number greater than 2 and less than " + city_list.length);
 			} else {
 				$('.start-game').hide();
+				$('.ingame').show();
 				$('#new-game-btn').show();
 				newGame(input);
 			}
 		});
+	});
+
+	//Bind clear route button
+	$('#clear-route-btn').click(function(){
+		clearRoute();
 	});
 }
 
 $(document).ready(function(){
 	
 	bind_btns();
-
 });

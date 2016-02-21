@@ -20,14 +20,25 @@
 		<link rel="stylesheet" type="text/css" href="main.css">
 	</head>
 
-	<body>
+	<body background="background.jpg">
 		<div id="game-page" class="container-fluid row">
+			<div class="panel-heading panel-primary clearfix"><h3 id="header">Can you beat Google Maps to all the cities?</h3></div>
 			<div class="col-sm-3 sidebar">
-				<div class="game-btns">
+				<div class="initial-game-btns">
 					<button id="new-game-btn" type="button" class="btn btn-primary">New game</button>
-					<h5 class="start-game">Please enter number of cities you want to play with.</h5>
+					<h5 class="start-game well" style="margin:5px">Please enter number of cities you want to play with.</h5>
 					<input id="city-num-input" class="start-game form-control">
-					<button id="start-game-btn" class="start-game btn btn-success" type="button" class="btn btn-success">Start game!</button>
+					<button id="start-game-btn" class="start-game btn btn-success" type="button">Start game!</button>
+
+					<div id="game-info" class="ingame well">
+						<ul id="route-list"><h3>Route List</h3>
+
+						</ul>
+						<button id="clear-route-btn" class="btn btn-success" type="button">Clear Route</button>
+
+						<button id="submit-route-btn" class="btn btn-success" type="button">Submit Route</button>
+					</div>
+
 				</div>
 			</div>
 			<div class="col-sm-9" id="map">
